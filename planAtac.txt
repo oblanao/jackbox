@@ -1,0 +1,24 @@
+Jackbox
+
+User intra pe ROOT '/'
+**********************
+
+Creeaza joc
+
+In momentul in care user creeaza joc, spre client se trimite "App.myRole = SERVER"
+Se genereaza un cod de 4 litere asociat jocului.
+
+User intra pe CAMERA '/:roomID'
+**********************
+
+Alege nume
+
+In momentul in care user alege nume si intra, spre client se trimite "App.myRole = CLIENT+${username}"
+
+
+Eventurile vor fi de genul:
+
+PlayerJoin 
+SERVER ----> Server.playerJoin
+CLIENT ----> Client.playerJoin
+		
