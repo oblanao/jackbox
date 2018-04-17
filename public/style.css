@@ -1,0 +1,22 @@
+body {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.main-container {
+  text-align: center;
+}
+
+.inputContainer {
+  margin-top: 25px;
+  display: none;
+}
+
+#roomCode-input {
+  width: 100px;
+  margin: 0 auto;
+  text-transform: uppercase;
+  text-align: center;
+}
