@@ -17,11 +17,22 @@ var server = http.createServer(app);
 var io = socketIO.listen(server);
 
 io.on('connection', (socket) => {
+  // Logic when user exits
+  socket.on('userExit', (roomCode) => {
+    console.log(roomCode);
+    var room = roomList[roomCode];
+    if (room.isServer(socket)) {
+      room.removeFromList();
+      room.emitToAllCients('roomDeleted');
+    } else {
+      room.emitToServer('playerLeft', socket.playerName);
+    }
+  });
   // Logic when server has to create new game
   socket.on('newGame-pressed', () => {    
     let roomCode = newRoomCode();
     roomList[roomCode] = new Room(roomCode, socket);
-    console.log(roomList[roomCode]);
+
     // Emit to server of room
     roomList[roomCode].emitToServer('newRoomCode', roomCode);
   });
@@ -33,14 +44,11 @@ io.on('connection', (socket) => {
     } else {
       var room = roomList[roomCode];
       const playerName = data.playerName;
+      socket.playerName = playerName;
       // Add client to Room    
       room.addClient(socket, playerName);
       // Emit to everyone that user Joined
-      room.emitToAll('userJoined', playerName);
-      // Emit to box that room is full
-      if (room.clientsSockets.length === 3) {
-        room.emitToClient('box', 'testEvent', 'ma sugi');
-      }
+      room.emitToAll('userJoined', data);
     }
   })
 });

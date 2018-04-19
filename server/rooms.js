@@ -22,10 +22,12 @@ function Room(roomCode, socket) {
   this.serverSocket = socket;
   this.clientsSockets = [];
   this.clientSocketIndex = {}
+  this.clientNameIndex = {}
   this.getSocket = (playerName) => this.clientsSockets[this.clientSocketIndex[playerName]];
   this.addClient = (socket, clientName) => {
     this.clientsSockets.push(socket);
     this.clientSocketIndex[clientName] = this.clientsSockets.length-1;
+    this.clientNameIndex[this.clientsSockets.length-1] = clientName;
   }
   this.emitToAll = (event, data) => {
     this.emitToServer(event, data);
@@ -40,9 +42,14 @@ function Room(roomCode, socket) {
     }
   }
   this.emitToClient = (clientName, event, data) => {
-    // let clientIndex = this.clientSocketIndex[clientName];
-    // this.clientsSockets[clientIndex].emit(event, data);
     this.getSocket(clientName).emit(event, data);
+  }
+  this.isServer = (socket) => {
+    return socket === this.serverSocket;
+  }
+  this.removeFromList = () => {
+    const index = roomList.indexOf(this.roomCode);
+    roomList.splice(index,1);
   }
 }
 

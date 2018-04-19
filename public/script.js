@@ -20,6 +20,9 @@ $(document).ready(() => {
       playerName: $('#playerName').val()
     });
   });
+  $(window).on('unload', () => {
+    socket.emit('userExit', App.roomCode);
+  })
   // Auto submit on enter press for join game form
   $('.modal-dialog input').keypress(function(e){
     if(e.keyCode==13) {
@@ -28,6 +31,8 @@ $(document).ready(() => {
   });
   // Logic when user presses new game button
   socket.on('newRoomCode', (roomCode) => {
+    // Set App's room
+    App.roomCode = roomCode;
     // Update screen
     var screen = $('#newGame-pressed-template').html();
     $('.main-container').html(screen);
@@ -38,7 +43,15 @@ $(document).ready(() => {
     alert('Roomcode does not exist!');
     $('#roomCode').trigger('focus');
   });
-  socket.on('userJoined', (playerName) => {
-    App[App.myRole].userJoined(playerName);
+  socket.on('userJoined', (data) => {
+    App[App.myRole].userJoined(data.playerName);
+    App.roomCode = data.roomCode;
   });
+  socket.on('roomDeleted', () => {
+    alert('Server disconnected!');
+    location.reload(true);
+  });
+  socket.on('playerLeft', (playerName) => {
+    console.log(`${playerName} has left the game!`);
+  })
 });

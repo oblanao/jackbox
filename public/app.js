@@ -1,4 +1,5 @@
 var App = {
+  roomCode: '',
   myRole: 'Client', // changes to 'Server' when New Game button is pressed
   Client: {
     userJoined: (playerName) => {
@@ -15,3 +16,6 @@ var App = {
     }
   }
 }
+
+
+variabila = 5;
