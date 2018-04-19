@@ -1,8 +1,7 @@
-// Initialize main screen
-const init = (socket) => {
-  var screen = $('#default-template').html();
-  $('.main-container').html(screen);
-}
+// Import App object
+$.getScript("app.js", function() {
+  console.log(`Script app.js successfuly imported!`);
+});
 
 $(document).ready(() => {
   var socket = io();
@@ -13,6 +12,7 @@ $(document).ready(() => {
   // Event binding for the 2 buttons
   $('#newGame-button').on('click', () => {
     socket.emit('newGame-pressed');
+    App.myRole = 'Server';
   });
   $('#joinGame-button').on('click', () => {
     socket.emit('joinGame-pressed', {
@@ -38,16 +38,7 @@ $(document).ready(() => {
     alert('Roomcode does not exist!');
     $('#roomCode').trigger('focus');
   });
-  // Logic when user joins existing room
-  socket.on('userJoined-server', (playerName) => {
-    $('li').append(`<ul class="player" id="${playerName}">${playerName}</ul>`);
+  socket.on('userJoined', (playerName) => {
+    App[App.myRole].userJoined(playerName);
   });
-  socket.on('userJoined-clients', (playerName) => {
-    $('#joinGame-modal').modal('hide');
-    console.log(`user ${playerName} joined room`);
-  });
-  // Test emit to client only
-  socket.on('testEvent', (message) => {
-    alert(message);
-  })
 });

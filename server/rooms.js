@@ -27,6 +27,10 @@ function Room(roomCode, socket) {
     this.clientsSockets.push(socket);
     this.clientSocketIndex[clientName] = this.clientsSockets.length-1;
   }
+  this.emitToAll = (event, data) => {
+    this.emitToServer(event, data);
+    this.emitToAllClients(event, data);
+  }
   this.emitToServer = (event, data) => {
     this.serverSocket.emit(event, data);
   }

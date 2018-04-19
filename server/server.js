@@ -35,10 +35,8 @@ io.on('connection', (socket) => {
       const playerName = data.playerName;
       // Add client to Room    
       room.addClient(socket, playerName);
-      // Emit to server
-      room.emitToServer('userJoined-server', playerName);
-      // Emit to all clients
-      room.emitToAllClients('userJoined-clients', playerName);
+      // Emit to everyone that user Joined
+      room.emitToAll('userJoined', playerName);
       // Emit to box that room is full
       if (room.clientsSockets.length === 3) {
         room.emitToClient('box', 'testEvent', 'ma sugi');
