@@ -47,11 +47,24 @@ $(document).ready(() => {
     App[App.myRole].userJoined(data.playerName);
     App.roomCode = data.roomCode;
   });
+  socket.on('chooseAvatars', (data) => {
+    console.log(data);
+    App[App.myRole].chooseAvatar(data);
+  })
   socket.on('roomDeleted', () => {
     alert('Server disconnected!');
     location.reload(true);
   });
   socket.on('playerLeft', (playerName) => {
-    console.log(`${playerName} has left the game!`);
-  })
+    App[App.myRole].userLeft(playerName);
+  });
+  socket.on('userChoseAvatar', (data) => {
+    App[App.myRole].userChoseAvatar(data.playerName, data.imageUrl);
+  });
+  $(document).on('click', '.container-avatar-choices>.img-fluid', function() {
+    console.log('img clicked!');
+    let imageUrl = $(this).attr('src');
+    console.log(imageUrl);
+    socket.emit('chosenAvatar', {imageUrl, roomCode: App.roomCode});
+  });
 });

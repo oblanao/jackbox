@@ -31,3 +31,25 @@ body {
 ::placeholder { /* Recent browsers */
   text-transform: none;
 }
+
+.connected-players {
+  margin-top: 25px;
+  display: flex;
+  justify-content: center;
+}
+.player-avatar {
+  max-height: 150px;
+  max-width: 150px;
+}
+.container-avatar-choices {
+  width: 90%;
+  max-width: 800px;
+}
+.container-avatar-choices>img {
+  max-width: 128px;
+}
+@media (max-width: 576px) {
+  .container-avatar-choices>img {
+    max-width: 64px;
+  }
+}

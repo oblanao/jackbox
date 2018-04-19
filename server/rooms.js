@@ -48,8 +48,8 @@ function Room(roomCode, socket) {
     return socket === this.serverSocket;
   }
   this.removeFromList = () => {
-    const index = roomList.indexOf(this.roomCode);
-    roomList.splice(index,1);
+    const index = roomNamesList.indexOf(this.roomCode);
+    roomNamesList.splice(index,1);
   }
 }
 

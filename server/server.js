@@ -4,6 +4,7 @@ const path = require('path');
 const socketIO = require('socket.io');
 
 const { newRoomCode, roomExists, roomList, roomNamesList, Room } = require('./rooms');
+const { getAvatarList } = require('./helpers');
 
 const port = process.env.PORT || 3000;
 const publicPath = path.join(__dirname, '/../public');
@@ -19,11 +20,10 @@ var io = socketIO.listen(server);
 io.on('connection', (socket) => {
   // Logic when user exits
   socket.on('userExit', (roomCode) => {
-    console.log(roomCode);
     var room = roomList[roomCode];
     if (room.isServer(socket)) {
       room.removeFromList();
-      room.emitToAllCients('roomDeleted');
+      room.emitToAllClients('roomDeleted');
     } else {
       room.emitToServer('playerLeft', socket.playerName);
     }
@@ -47,9 +47,23 @@ io.on('connection', (socket) => {
       socket.playerName = playerName;
       // Add client to Room    
       room.addClient(socket, playerName);
-      // Emit to everyone that user Joined
-      room.emitToAll('userJoined', data);
+      // Emit to server that user Joined
+      room.emitToServer('userJoined', data);
+      // Emit to self, to change HTML
+      socket.emit('userJoined', data);
+      socket.emit('chooseAvatars', getAvatarList());
     }
+  });
+  socket.on('chosenAvatar', (data) => {
+    console.log(data);
+    let roomCode = data.roomCode;
+    let imageUrl = data.imageUrl;
+    var room = roomList[roomCode];
+    var playerName = socket.playerName;
+    room.emitToServer('userChoseAvatar', {
+      imageUrl,
+      playerName
+    });
   })
 });
 
