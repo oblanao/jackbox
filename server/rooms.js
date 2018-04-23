@@ -20,15 +20,17 @@ const newRoomCode = () => {
 function Room(roomCode, socket) {
   this.roomCode = roomCode;
   this.serverSocket = socket;
-  this.clientsSockets = [];
-  this.clientSocketIndex = {}
-  this.clientNameIndex = {}
+  this.clientsSockets = []; // [Socket, Socket ...]
+  this.clientSocketIndex = {} // { 'box': 0 }
+  this.clientNameIndex = {} //
   this.usedAvatars = [];
+  this.allPlayerNames = [];
   this.getSocket = (playerName) => this.clientsSockets[this.clientSocketIndex[playerName]];
   this.addClient = (socket, clientName) => {
     this.clientsSockets.push(socket);
     this.clientSocketIndex[clientName] = this.clientsSockets.length-1;
     this.clientNameIndex[this.clientsSockets.length-1] = clientName;
+    this.allPlayerNames.push(clientName);
   }
   this.emitToAll = (event, data) => {
     this.emitToServer(event, data);

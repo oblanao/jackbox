@@ -4,6 +4,7 @@ const path = require('path');
 const socketIO = require('socket.io');
 
 const { newRoomCode, roomExists, roomList, roomNamesList, Room } = require('./rooms');
+const { Game, gameList } = require('./games');
 const { getAvatarList } = require('./helpers');
 
 const port = process.env.PORT || 3000;
@@ -21,11 +22,14 @@ io.on('connection', (socket) => {
   // Logic when user exits
   socket.on('userExit', (roomCode) => {
     var room = roomList[roomCode];
-    if (room.isServer(socket)) {
-      room.removeFromList();
-      room.emitToAllClients('roomDeleted');
-    } else {
-      room.emitToServer('playerLeft', socket.playerName);
+    if (room) {
+      if (room.isServer(socket)) {
+        delete gameList[roomCode];
+        room.removeFromList();
+        room.emitToAllClients('roomDeleted');
+      } else {
+        room.emitToServer('playerLeft', socket.playerName);
+      }
     }
   });
   // Logic when server has to create new game
@@ -45,22 +49,30 @@ io.on('connection', (socket) => {
       var room = roomList[roomCode];
       const playerName = data.playerName;
       socket.playerName = playerName;
-      // Add client to Room    
-      room.addClient(socket, playerName);
-      // Emit to server that user Joined
-      room.emitToServer('userJoined', data);
-      // Emit to self, to change HTML
-      socket.emit('userJoined', data);
-      socket.emit('chooseAvatars', {
-        avatarList: getAvatarList(), 
-        usedAvatars: room.usedAvatars
-      });
+      if (!playerName) {
+        socket.emit('wrongPlayerName');
+      } else {
+        if (room.allPlayerNames.includes(playerName)) {
+          socket.emit('duplicatePlayerName', (playerName));
+        } else {
+          // Add client to Room    
+          room.addClient(socket, playerName);
+          // Emit to server that user Joined
+          room.emitToServer('userJoined', data);
+          // Emit to self, to change HTML
+          socket.emit('userJoined', data);
+          socket.emit('chooseAvatars', {
+            avatarList: getAvatarList(), 
+            usedAvatars: room.usedAvatars
+          });
+        }
+      }
     }
-    socket.on('addUsedAvatar', (data) => {
-      const roomCode = data.roomCode;
-      const room = roomList[roomCode];
-      room.usedAvatars.push(data.imageUrl);
-    });
+  });
+  socket.on('addUsedAvatar', (data) => {
+    const roomCode = data.roomCode;
+    const room = roomList[roomCode];
+    room.usedAvatars.push(data.imageUrl);
   });
   socket.on('chosenAvatar', (data) => {
     console.log(data);
@@ -72,7 +84,14 @@ io.on('connection', (socket) => {
       imageUrl,
       playerName
     });
-  })
+  });
+  socket.on('gameStarted', (roomCode) => {
+    console.log('game Started!');
+    let room = roomList[roomCode];
+    let game = new Game(room);
+    room.emitToAllClients('serverStartedGame');
+    game.round();
+  });
 });
 
 server.listen(port, () => {

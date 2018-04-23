@@ -18,11 +18,14 @@ var App = {
           $('.container-avatar-choices').append(`<img class="img-fluid" src="${avatarList[i]}" alt="avatar_choice" />`)
         }
       }
+    },
+    someoneWon: () => {
+      alert('You Won!');
     }
   },
   Server: {
     userJoined: (playerName) => {
-      $('.connected-players').append(`<div id="${playerName}" class="player-avatar"><img class="img-fluid" src="https://i2.wp.com/www.ahfirstaid.org/wp-content/uploads/2014/07/avatar-placeholder.png" alt="player avatar" /><p>${playerName}</div>`);
+      $('.connected-players').append(`<div id="${playerName}" class="player-avatar"><img class="img-fluid" src="https://image.flaticon.com/icons/png/128/168/168876.png" alt="player avatar" /><p>${playerName}</div>`);
     },
     userLeft: (playerName) => {
       let selector = $(`#${playerName}`);
@@ -33,6 +36,15 @@ var App = {
       let selector = $(`#${playerName} img`);
       console.log(selector);
       selector.attr("src", imageUrl);
+    },
+    someoneWon: (winner) => {
+      $('.main-container').append(`<h1>${winner} has won the game!`);
     }
+  }
+}
+
+var Game = {
+  start: (socket) => {
+    socket.emit('gameStarted', App.roomCode);
   }
 }

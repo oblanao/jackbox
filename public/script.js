@@ -9,7 +9,7 @@ $(document).ready(() => {
   $('#joinGame-modal').on('shown.bs.modal', function () {
     $('#roomCode').trigger('focus');
   });
-  // Event binding for the 2 buttons
+  // Event binding for the buttons
   $('#newGame-button').on('click', () => {
     socket.emit('newGame-pressed');
   });
@@ -19,7 +19,9 @@ $(document).ready(() => {
       playerName: $('#playerName').val()
     });
   });
-
+  $(document).on('click','#startGame-button', () => {
+    Game.start(socket);
+  })
   // Disconnect event
   $(window).on('unload', () => {
     socket.emit('userExit', App.roomCode);
@@ -45,6 +47,14 @@ $(document).ready(() => {
     alert('Roomcode does not exist!');
     $('#roomCode').trigger('focus');
   });
+  socket.on('wrongPlayerName', () => {
+    alert('playerName invalid!');
+    $('#playerName').trigger('focus');
+  });
+  socket.on('duplicatePlayerName', (playerName) => {
+    alert(`Player ${playerName} already exists!`);
+    $('#playerName').trigger('focus');
+  })
   socket.on('userJoined', (data) => {
     App[App.myRole].userJoined(data.playerName);
     App.roomCode = data.roomCode;
@@ -63,6 +73,17 @@ $(document).ready(() => {
   socket.on('userChoseAvatar', (data) => {
     App[App.myRole].userChoseAvatar(data.playerName, data.imageUrl);
   });
+  socket.on('serverStartedGame', () => {
+    $('.container-avatar-choices').hide();
+    $('.main-container').append('<p>game starting!</p>');
+  });
+  socket.on('newRandom', (randomNumber) => {
+    $('.main-container').append(`<p>Your random number is ${randomNumber}</p>`);
+  });
+  socket.on('winner', (winner) => {
+    App[App.myRole].someoneWon(winner);
+  });
+  // Choosing avatar by clicking on image
   $(document).on('click', '.container-avatar-choices>.img-fluid', function() {
     if (!$(this).hasClass('usedAvatar')) {
       let roomCode = App.roomCode;
