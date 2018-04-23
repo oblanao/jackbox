@@ -51,8 +51,16 @@ io.on('connection', (socket) => {
       room.emitToServer('userJoined', data);
       // Emit to self, to change HTML
       socket.emit('userJoined', data);
-      socket.emit('chooseAvatars', getAvatarList());
+      socket.emit('chooseAvatars', {
+        avatarList: getAvatarList(), 
+        usedAvatars: room.usedAvatars
+      });
     }
+    socket.on('addUsedAvatar', (data) => {
+      const roomCode = data.roomCode;
+      const room = roomList[roomCode];
+      room.usedAvatars.push(data.imageUrl);
+    });
   });
   socket.on('chosenAvatar', (data) => {
     console.log(data);

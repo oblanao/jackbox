@@ -9,9 +9,14 @@ var App = {
       $('.main-container').html(screen);
       $('.greeting').text(`Hello, ${playerName} !`);
     },
-    chooseAvatar: (avatarList) => {
+    chooseAvatar: (avatarList, usedAvatars) => {
+      console.log(usedAvatars);
       for (let i = 0; i < avatarList.length; i++) {
-        $('.container-avatar-choices').append(`<img class="img-fluid" src="${avatarList[i]}" alt="avatar_choice" />`)
+        if (usedAvatars.includes(avatarList[i])) {
+          $('.container-avatar-choices').append(`<img class="img-fluid usedAvatar" src="${avatarList[i]}" alt="avatar_choice" />`)
+        } else {
+          $('.container-avatar-choices').append(`<img class="img-fluid" src="${avatarList[i]}" alt="avatar_choice" />`)
+        }
       }
     }
   },

@@ -12,7 +12,6 @@ $(document).ready(() => {
   // Event binding for the 2 buttons
   $('#newGame-button').on('click', () => {
     socket.emit('newGame-pressed');
-    App.myRole = 'Server';
   });
   $('#joinGame-button').on('click', () => {
     socket.emit('joinGame-pressed', {
@@ -20,6 +19,8 @@ $(document).ready(() => {
       playerName: $('#playerName').val()
     });
   });
+
+  // Disconnect event
   $(window).on('unload', () => {
     socket.emit('userExit', App.roomCode);
   })
@@ -31,8 +32,9 @@ $(document).ready(() => {
   });
   // Logic when user presses new game button
   socket.on('newRoomCode', (roomCode) => {
-    // Set App's room
+    // Set App's room and role
     App.roomCode = roomCode;
+    App.myRole = 'Server';
     // Update screen
     var screen = $('#newGame-pressed-template').html();
     $('.main-container').html(screen);
@@ -49,7 +51,7 @@ $(document).ready(() => {
   });
   socket.on('chooseAvatars', (data) => {
     console.log(data);
-    App[App.myRole].chooseAvatar(data);
+    App[App.myRole].chooseAvatar(data.avatarList, data.usedAvatars);
   })
   socket.on('roomDeleted', () => {
     alert('Server disconnected!');
@@ -62,9 +64,14 @@ $(document).ready(() => {
     App[App.myRole].userChoseAvatar(data.playerName, data.imageUrl);
   });
   $(document).on('click', '.container-avatar-choices>.img-fluid', function() {
-    console.log('img clicked!');
-    let imageUrl = $(this).attr('src');
-    console.log(imageUrl);
-    socket.emit('chosenAvatar', {imageUrl, roomCode: App.roomCode});
+    if (!$(this).hasClass('usedAvatar')) {
+      let roomCode = App.roomCode;
+      console.log('img clicked!');
+      let imageUrl = $(this).attr('src');
+      console.log(imageUrl);
+      socket.emit('addUsedAvatar', {imageUrl, roomCode});
+      socket.emit('chosenAvatar', {imageUrl, roomCode: App.roomCode});
+      $('.container-avatar-choices').hide();
+    }
   });
 });

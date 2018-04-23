@@ -23,6 +23,7 @@ function Room(roomCode, socket) {
   this.clientsSockets = [];
   this.clientSocketIndex = {}
   this.clientNameIndex = {}
+  this.usedAvatars = [];
   this.getSocket = (playerName) => this.clientsSockets[this.clientSocketIndex[playerName]];
   this.addClient = (socket, clientName) => {
     this.clientsSockets.push(socket);

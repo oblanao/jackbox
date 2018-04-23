@@ -53,3 +53,12 @@ body {
     max-width: 64px;
   }
 }
+
+#startGame-button {
+  margin-top: 50px;
+}
+
+.usedAvatar {
+  cursor: not-allowed;
+  opacity: 0.1;
+}
