@@ -20,7 +20,7 @@ $(document).ready(() => {
     });
   });
   $(document).on('click','#startGame-button', () => {
-    Game.start(socket);
+    // Game.start(socket);
   })
   // Disconnect event
   $(window).on('unload', () => {
@@ -56,16 +56,17 @@ $(document).ready(() => {
     $('#playerName').trigger('focus');
   })
   socket.on('userJoined', (data) => {
-    App[App.myRole].userJoined(data.playerName);
+    App.myName = data.playerName;
+    App[App.myRole].userJoined(App.myName);
     App.roomCode = data.roomCode;
   });
   socket.on('chooseAvatars', (data) => {
-    console.log(data);
     App[App.myRole].chooseAvatar(data.avatarList, data.usedAvatars);
   })
-  socket.on('roomDeleted', () => {
-    alert('Server disconnected!');
-    location.reload(true);
+  socket.on('roomDeleted', (roomCode) => {
+    $('.main-container').empty();
+    $('.main-container').append(`Server disconnected. Room ${roomCode} is no longer available.`);
+    // location.reload(true);
   });
   socket.on('playerLeft', (playerName) => {
     App[App.myRole].userLeft(playerName);
@@ -77,12 +78,12 @@ $(document).ready(() => {
     $('.container-avatar-choices').hide();
     $('.main-container').append('<p>game starting!</p>');
   });
-  socket.on('newRandom', (randomNumber) => {
-    $('.main-container').append(`<p>Your random number is ${randomNumber}</p>`);
-  });
-  socket.on('winner', (winner) => {
-    App[App.myRole].someoneWon(winner);
-  });
+  // socket.on('newRandom', (randomNumber) => {
+  //   $('.main-container').append(`<p>Your random number is ${randomNumber}</p>`);
+  // });
+  // socket.on('winner', (winner) => {
+  //   App[App.myRole].someoneWon(winner);
+  // });
   // Choosing avatar by clicking on image
   $(document).on('click', '.container-avatar-choices>.img-fluid', function() {
     if (!$(this).hasClass('usedAvatar')) {

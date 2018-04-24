@@ -24,9 +24,11 @@ io.on('connection', (socket) => {
     var room = roomList[roomCode];
     if (room) {
       if (room.isServer(socket)) {
-        delete gameList[roomCode];
         room.removeFromList();
-        room.emitToAllClients('roomDeleted');
+        room.emitToAllClients('roomDeleted', roomCode);
+        setTimeout(() => {
+          delete gameList[roomCode]
+        },2000);
       } else {
         room.emitToServer('playerLeft', socket.playerName);
       }
@@ -36,7 +38,6 @@ io.on('connection', (socket) => {
   socket.on('newGame-pressed', () => {    
     let roomCode = newRoomCode();
     roomList[roomCode] = new Room(roomCode, socket);
-
     // Emit to server of room
     roomList[roomCode].emitToServer('newRoomCode', roomCode);
   });
@@ -85,13 +86,13 @@ io.on('connection', (socket) => {
       playerName
     });
   });
-  socket.on('gameStarted', (roomCode) => {
-    console.log('game Started!');
-    let room = roomList[roomCode];
-    let game = new Game(room);
-    room.emitToAllClients('serverStartedGame');
-    game.round();
-  });
+  // socket.on('gameStarted', (roomCode) => {
+  //   console.log('game Started!');
+  //   let room = roomList[roomCode];
+  //   let game = new Game(room);
+  //   room.emitToAllClients('serverStartedGame');
+  //   game.round();
+  // });
 });
 
 server.listen(port, () => {

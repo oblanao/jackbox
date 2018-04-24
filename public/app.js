@@ -19,9 +19,9 @@ var App = {
         }
       }
     },
-    someoneWon: () => {
-      alert('You Won!');
-    }
+    // someoneWon: () => {
+    //   alert('You Won!');
+    // }
   },
   Server: {
     userJoined: (playerName) => {
@@ -37,14 +37,14 @@ var App = {
       console.log(selector);
       selector.attr("src", imageUrl);
     },
-    someoneWon: (winner) => {
-      $('.main-container').append(`<h1>${winner} has won the game!`);
-    }
+    // someoneWon: (winner) => {
+    //   $('.main-container').append(`<h1>${winner} has won the game!`);
+    // }
   }
 }
 
 var Game = {
-  start: (socket) => {
-    socket.emit('gameStarted', App.roomCode);
-  }
+  // start: (socket) => {
+  //   socket.emit('gameStarted', App.roomCode);
+  // }
 }

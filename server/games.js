@@ -14,25 +14,24 @@ function Game(gameRoom) {
   }
   this.initPlayerSockets();
   gameList[this.roomCode] = this;
-  console.log(gameList);
-  this.round = () => {
-    let maxNumber = 0;
-    let winner = '';
-    for (var player in this.players) {
-      if (this.players.hasOwnProperty(player)) {
-        let randomNumber = Math.random()*100+1;
-        if (randomNumber>maxNumber) {
-          maxNumber = randomNumber;
-          winner = player;
-        }
-        gameRoom.emitToClient(player, 'newRandom', randomNumber);
-      }
-    }
-    setTimeout(() => {
-      gameRoom.emitToClient(winner, 'winner');
-      gameRoom.emitToServer('winner', winner);
-    },1500)
-  }
+  // this.round = () => {
+  //   let maxNumber = 0;
+  //   let winner = '';
+  //   for (var player in this.players) {
+  //     if (this.players.hasOwnProperty(player)) {
+  //       let randomNumber = Math.random()*100+1;
+  //       if (randomNumber>maxNumber) {
+  //         maxNumber = randomNumber;
+  //         winner = player;
+  //       }
+  //       gameRoom.emitToClient(player, 'newRandom', randomNumber);
+  //     }
+  //   }
+  //   setTimeout(() => {
+  //     gameRoom.emitToClient(winner, 'winner');
+  //     gameRoom.emitToServer('winner', winner);
+  //   },1500)
+  // }
 }
 
 module.exports = {
