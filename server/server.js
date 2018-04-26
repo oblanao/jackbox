@@ -1,100 +1,84 @@
+// Import modules
 const express = require('express');
 const http = require('http');
 const path = require('path');
 const socketIO = require('socket.io');
 
-const { newRoomCode, roomExists, roomList, roomNamesList, Room } = require('./rooms');
-const { Game, gameList } = require('./games');
-const { getAvatarList } = require('./helpers');
+// Import internal js components
+const { allGames, Game, newRoomcode, roomcodeExists } = require('./Game');
 
+// Server variables
 const port = process.env.PORT || 3000;
 const publicPath = path.join(__dirname, '/../public');
 
+// Initialize express
 const app = express();
 
-// all environments
+// serve static public files
 app.use(express.static(publicPath));
 
+// Initialize socket.io
 var server = http.createServer(app);
 var io = socketIO.listen(server);
 
+// socket.io events
 io.on('connection', (socket) => {
-  // Logic when user exits
-  socket.on('userExit', (roomCode) => {
-    var room = roomList[roomCode];
-    if (room) {
-      if (room.isServer(socket)) {
-        room.removeFromList();
-        room.emitToAllClients('roomDeleted', roomCode);
-        setTimeout(() => {
-          delete gameList[roomCode]
-        },2000);
-      } else {
-        room.emitToServer('playerLeft', socket.playerName);
+  // When one of the windows connected to the game is closed
+  socket.on('windowUnload', (roomCode) => {
+    var game = allGames[roomCode];
+    if (game) {
+      if (game.isServer(socket)) { // If server unloaded the window
+        game.destroy();
+      } else { // If player unloaded the window
+        game.removeClient(socket);
       }
     }
   });
-  // Logic when server has to create new game
-  socket.on('newGame-pressed', () => {    
-    let roomCode = newRoomCode();
-    roomList[roomCode] = new Room(roomCode, socket);
-    // Emit to server of room
-    roomList[roomCode].emitToServer('newRoomCode', roomCode);
+  // When 'newGame-button' is clicked
+  socket.on('createGame', () => {
+    // Generate new, unique roomcode
+    let roomCode = newRoomcode();
+    // Create new instance of Game. This will also emit the startPregame event
+    allGames[roomCode] = new Game(roomCode, socket);
   });
-  // Logic when server checks user trying to join room
-  socket.on('joinGame-pressed', (data) => {
+  // When 'joinGame-button' is clicked
+  socket.on('userTriesToJoin', (data) => {
     const roomCode = data.roomCode;
-    if (!roomExists(roomCode)) {
+    // If the roomcode does not exist
+    if (!roomcodeExists(roomCode)) {
       socket.emit('wrongRoomCode', roomCode);
-    } else {
-      var room = roomList[roomCode];
+    } else { // If game with roomcode exists
+      var game = allGames[roomCode];
       const playerName = data.playerName;
-      socket.playerName = playerName;
-      if (!playerName) {
-        socket.emit('wrongPlayerName');
+      if (game.playerExists(playerName)) {
+        socket.emit('duplicatePlayerName', (playerName));
       } else {
-        if (room.allPlayerNames.includes(playerName)) {
-          socket.emit('duplicatePlayerName', (playerName));
-        } else {
-          // Add client to Room    
-          room.addClient(socket, playerName);
-          // Emit to server that user Joined
-          room.emitToServer('userJoined', data);
-          // Emit to self, to change HTML
-          socket.emit('userJoined', data);
-          socket.emit('chooseAvatars', {
-            avatarList: getAvatarList(), 
-            usedAvatars: room.usedAvatars
-          });
-        }
+        // Add client to Room. This will also emit correct events to server and self
+        game.addClient(socket, playerName);
       }
     }
   });
-  socket.on('addUsedAvatar', (data) => {
-    const roomCode = data.roomCode;
-    const room = roomList[roomCode];
-    room.usedAvatars.push(data.imageUrl);
-  });
-  socket.on('chosenAvatar', (data) => {
-    console.log(data);
+  // When user clicks on some avatar
+  socket.on('userChoseAvatar', (data) => {
     let roomCode = data.roomCode;
     let imageUrl = data.imageUrl;
-    var room = roomList[roomCode];
-    var playerName = socket.playerName;
-    room.emitToServer('userChoseAvatar', {
+    var game = allGames[roomCode];
+    var playerName = game.getName(socket);
+    // 1. Update game.usedAvatars with new src
+    game.usedAvatars.push(imageUrl);
+    // 2. Change Player[name].avatar to src
+    game.players[playerName].avatar = imageUrl;
+    // 3. Update avatar choices for every player
+    game.emitToAllClients('updateUsedAvatars', imageUrl);
+    // 4. Update server to show avatar of player
+    game.emitToServer('userChoseAvatar', {
       imageUrl,
       playerName
     });
   });
-  // socket.on('gameStarted', (roomCode) => {
-  //   console.log('game Started!');
-  //   let room = roomList[roomCode];
-  //   let game = new Game(room);
-  //   room.emitToAllClients('serverStartedGame');
-  //   game.round();
-  // });
 });
 
+// Initialize server
 server.listen(port, () => {
   console.log(`Server is listening on port ${port}`);
 });
