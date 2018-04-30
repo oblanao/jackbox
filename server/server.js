@@ -76,6 +76,10 @@ io.on('connection', (socket) => {
       playerName
     });
   });
+  socket.on('game-start', (roomCode) => {
+    var game = allGames[roomCode];
+    console.log(game);
+  });
 });
 
 // Initialize server

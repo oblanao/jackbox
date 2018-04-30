@@ -16,7 +16,9 @@ body {
 
 #roomCode {
   text-transform: uppercase;
-}::-webkit-input-placeholder { /* WebKit browsers */
+}
+
+::-webkit-input-placeholder { /* WebKit browsers */
   text-transform: none;
 }
 :-moz-placeholder { /* Mozilla Firefox 4 to 18 */
@@ -62,3 +64,10 @@ body {
   cursor: not-allowed;
   opacity: 0.1;
 }
+
+.startGame-countdown span{
+  font-family: 'Raleway' !important;
+  color: #60686F !important;
+  font-weight: 100 !important;
+}
+  

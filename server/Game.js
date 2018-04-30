@@ -84,7 +84,6 @@ function Game(roomCode, socket) {
     this.emitToAllClients('roomDeleted');
   }
   this.emitToServer('startPregame', this.roomCode); // emit the startPregame event
-  // Game Logic here
 }
 
 module.exports = {

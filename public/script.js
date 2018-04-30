@@ -149,3 +149,9 @@ $('.modal-dialog input').keypress(function(e){
     $('#joinGame-button').click();
   }
 });
+
+// When "Start game" is clicked on server
+$(document).on('click', '#startGame-button', () => {
+  // This will also emit the 'start-game' event after countdown finishes
+  App.updateScreen('#server-game_starting-template', socket);
+});
