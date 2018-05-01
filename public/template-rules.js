@@ -1,3 +1,13 @@
+const makeContainerFullScreen = () => {
+  let container = $('.main-container');
+  container.css({
+    "height": "100vh",
+    "width": "100vw",
+    "display": "flex",
+    "flex-direction": "column",
+  });
+}
+
 const templateRules = {
   '#server-pregame-template': (roomCode) => {
     $('.text').text(`JOIN ${roomCode} to start playing`); 
@@ -55,6 +65,16 @@ const templateRules = {
           socket.emit('game-start', App.roomCode);
         },750);
       }
-  });
+    });
+  },
+  '#server-in-game-template': (data) => {
+    makeContainerFullScreen();
+    // Add every player with avatar and name to screen header
+    let header = $('.in-game-header');
+    for (player in data) {
+      if (data.hasOwnProperty(player)) {
+        header.append(`<div class='header-player' id='header-player-${player}'><img class='img-fluid header-player-avatar' src='${data[player].avatar}' /><p class='header-player-name'>${player}</p></div>`);
+      }
+    }
   } 
 }

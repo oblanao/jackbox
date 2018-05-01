@@ -1,6 +1,31 @@
 // Initialize socket
 var socket = io();
 
+// Questions as a dictionary
+
+var questions = [
+  {
+    title: "Test 1",
+    answer: 1
+  },
+  {
+    title: "Test 2",
+    answer: 2
+  },
+  {
+    title: "Test 3",
+    answer: 3
+  },
+  {
+    title: "Test 4",
+    answer: 4
+  },
+  {
+    title: "Test 5",
+    answer: 5
+  }
+];
+
 var App = {
   roomCode: '',
   myRole: 'Client',
@@ -10,6 +35,10 @@ var App = {
     var screen = $(template).html();
     $('.main-container').html(screen);
     templateRules[template](arg);
+  },
+  // Internal helper
+  shuffleArray: (array) => {
+    array.sort(() => Math.random() - 0.5)
   },
   // Client will recieve when playerName and roomCode are valid
   showAvatarChoices: (avatarList, usedAvatars) => {
@@ -81,6 +110,49 @@ var App = {
     // Update screen
     App.updateScreen('#server-pregame-template', App.roomCode);
   },
+  // Server will receive after starting game countdown reaches 0
+  transferPlayersData: (data) => {
+    App.Game.players = data;
+    // console.log(App.Game);
+    App.Game.start();
+  },
+  // Object of game with data and methods
+  Game: {
+    round: 0,
+    players: {},
+    playerOrder: [],
+    questionOrder: [],
+    randomizePlayerOrder: () => {
+      // populate playerOrder array
+      for (player in App.Game.players) {
+        if (App.Game.players.hasOwnProperty(player)) {
+          App.Game.playerOrder.push(player);
+        }
+      }
+      // randomize the playerOrder
+      App.shuffleArray(App.Game.playerOrder);
+    },
+    randomizeQuestionOrder: () => {
+      App.shuffleArray(questions);
+      App.Game.questionOrder = [...questions.slice(0,App.Game.playerOrder.length)];
+    },
+    randomize: () => {
+      App.Game.randomizePlayerOrder();
+      App.Game.randomizeQuestionOrder();
+    },
+    start: () => {
+      App.updateScreen('#server-in-game-template', App.Game.players);
+      App.Game.randomize();
+      App.Game.nextRound();
+    },
+    nextRound: () => {
+      App.Game.round += 1;
+      let indexRound = App.Game.round - 1 // This is because array start at 0 :)
+      let container = $('.in-game-main');
+      container.append(`<h4>It's ${App.Game.playerOrder[indexRound]}'s turn!</h4>`);
+      container.append(`<h1 class="question-title">${App.Game.questionOrder[indexRound].title}`);
+    }
+  }
 }
 
 // Event binding
@@ -94,6 +166,7 @@ socket.on('userChoseAvatar', App.userChoseAvatar);
 socket.on('userLeft', App.userLeft);
 socket.on('roomDeleted', App.roomDeleted);
 socket.on('updateUsedAvatars', App.updateUsedAvatars);
+socket.on('transferPlayersData', App.transferPlayersData);
 
 // ************************** 
 // *  FrontEnd interaction  *

@@ -78,7 +78,7 @@ io.on('connection', (socket) => {
   });
   socket.on('game-start', (roomCode) => {
     var game = allGames[roomCode];
-    console.log(game);
+    socket.emit('transferPlayersData', game.players);
   });
 });
 

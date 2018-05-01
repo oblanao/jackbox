@@ -65,9 +65,34 @@ body {
   opacity: 0.1;
 }
 
-.startGame-countdown span{
+.startGame-countdown span {
   font-family: 'Raleway' !important;
   color: #60686F !important;
   font-weight: 100 !important;
 }
   
+.in-game-header {
+  height: 125px;
+  padding: 5px 10px;
+  display: flex;
+  justify-content: center;
+}
+
+.header-player {
+  margin: 0 20px;
+}
+
+.header-player-avatar {
+  max-height: 84px;
+}
+
+.header-player-name {
+  text-transform: uppercase;
+  font-size: 1.25rem;
+  margin-bottom: 0;
+}
+
+.in-game-main {
+  margin-top: 25px;
+  flex-grow: 2;
+}
