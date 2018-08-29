@@ -8,6 +8,39 @@ const makeContainerFullScreen = () => {
   });
 }
 
+const addPlayersToHeader = (data, callback) => {
+  let header = $('.in-game-header');
+    let delay = 0;
+    let playersLength = 0;
+    for (let player in data) {
+      if (data.hasOwnProperty(player)) {
+        delay += 1000;
+        setTimeout(() => {
+          playersLength++;
+          header.append(`<div class='header-player cssanimation lightning zoomIn' id='header-player-${player}'><img class='img-fluid header-player-avatar' src='${data[player].avatar}' /><p class='header-player-name'>${player}</p></div>`);
+          var sound = new Audio('/sounds/enter.wav');
+          sound.play();
+          if ((delay/1000) === playersLength) {
+            callback();
+          }
+        }, delay);
+      }
+    }
+}
+const talk = () => {
+  wait(1000).then(() => {
+    console.log('ma sugi!')
+  });
+}
+
+const wait = (ms) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve();
+    }, ms)
+  })
+}
+
 const templateRules = {
   '#server-pregame-template': (roomCode) => {
     $('.text').text(`JOIN ${roomCode} to start playing`); 
@@ -67,14 +100,9 @@ const templateRules = {
       }
     });
   },
-  '#server-in-game-template': (data) => {
+  '#server-in-game-template': async (data) => {
     makeContainerFullScreen();
     // Add every player with avatar and name to screen header
-    let header = $('.in-game-header');
-    for (player in data) {
-      if (data.hasOwnProperty(player)) {
-        header.append(`<div class='header-player' id='header-player-${player}'><img class='img-fluid header-player-avatar' src='${data[player].avatar}' /><p class='header-player-name'>${player}</p></div>`);
-      }
-    }
+    await addPlayersToHeader(data, talk);
   } 
 }

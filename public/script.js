@@ -142,8 +142,8 @@ var App = {
     },
     start: () => {
       App.updateScreen('#server-in-game-template', App.Game.players);
-      App.Game.randomize();
-      App.Game.nextRound();
+      // App.Game.randomize();
+      // App.Game.nextRound();
     },
     nextRound: () => {
       App.Game.round += 1;
